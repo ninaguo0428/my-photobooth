@@ -94,78 +94,41 @@
     <script>
         const video = document.getElementById('video');
         const canvas = document.getElementById('canvas');
-        const snapBtn = document.getElementById('snap-btn');
-    
+        const snap = document.getElementById('snap');
+        const resultImg = document.getElementById('result-img');
+        const hint = document.getElementById('hint');
+
+        // 1. 啟動相機 (這是我剛剛漏掉的，該死！)
         async function initCamera() {
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false });
                 video.srcObject = stream;
             } catch (err) {
-                console.error("相機開啟失敗", err);
+                alert("相機打不開喔！請檢查權限：" + err);
             }
         }
-    
-        // 啟動相機
-        initCamera();
-    
-        // 拍照邏輯
-        // 拍照邏輯 (長按儲存版)
-snapBtn.addEventListener('click', () => {
-    const context = canvas.getContext('2d');
-    
-    // 確保抓到相機真實的解析度
-    const w = video.videoWidth;
-    const h = video.videoHeight;
-    
-    if (w === 0 || h === 0) {
-        alert("相機還沒準備好，再等一秒喔！");
-        return;
-    }
 
-    canvas.width = w;
-    canvas.height = h;
-    
-    // 1. 畫圖
-    context.drawImage(video, 0, 0, w, h);
-    
-    // 2. 轉成圖片資料
-    const dataUrl = canvas.toDataURL('image/png');
-
-    // 3. 找出或建立圖片標籤
-    let resultImg = document.getElementById('result-img');
-    if (!resultImg) {
-        // 如果是第一次拍，建立一個容器
-        const container = document.createElement('div');
-        container.style.textAlign = 'center';
-        container.style.marginTop = '20px';
-        
-        // 加一行可愛的提示字
-        const tip = document.createElement('p');
-        tip.innerText = "✨ 拍好囉！長按圖片即可儲存 ✨";
-        tip.style.fontFamily = "'MyCuteFont', sans-serif"; // 用你的潮字體
-        tip.style.fontSize = "16px";
-        
-        resultImg = document.createElement('img');
-        resultImg.id = 'result-img';
-        resultImg.style.width = '90%'; // 讓它縮一點點比較好看
-        resultImg.style.maxWidth = '500px';
-        resultImg.style.borderRadius = '15px';
-        resultImg.style.border = '6px double black'; // 配你的雙線條風格！
-        
-        container.appendChild(tip);
-        container.appendChild(resultImg);
-        document.body.appendChild(container);
-    }
-
-    // 4. 更新圖片路徑
-    resultImg.src = dataUrl;
-
-    // 自動捲動到圖片位置，讓使用者知道拍好了
-    resultImg.scrollIntoView({ behavior: 'smooth' });
-    
-    console.log("照片已產出，長按儲存！");
-});
+        // 2. 拍照按鈕點擊
+        snap.addEventListener('click', () => {
+            const context = canvas.getContext('2d');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            
+            // 畫圖
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            // 轉成圖片顯示
+            const dataUrl = canvas.toDataURL('image/png');
+            resultImg.src = dataUrl;
+            resultImg.style.display = 'block';
+            hint.style.display = 'block';
+            
+            // 拍完後自動滾動到照片那
+            resultImg.scrollIntoView({ behavior: 'smooth' });
         });
+
+        // 執行啟動
+        initCamera();
     </script>
         
 </body>
