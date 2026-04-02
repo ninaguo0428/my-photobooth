@@ -94,42 +94,37 @@
     <script>
         const video = document.getElementById('video');
         const canvas = document.getElementById('canvas');
-        const snap = document.getElementById('snap');
-        const resultImg = document.getElementById('result-img');
-        const hint = document.getElementById('hint');
-
-        // 1. 啟動相機 (這是我剛剛漏掉的，該死！)
+        const snapBtn = document.getElementById('snap-btn');
+    
         async function initCamera() {
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false });
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
                 video.srcObject = stream;
             } catch (err) {
-                alert("相機打不開喔！請檢查權限：" + err);
+                console.error("相機開啟失敗", err);
             }
         }
-
-        // 2. 拍照按鈕點擊
-        snap.addEventListener('click', () => {
+    
+        // 啟動相機
+        initCamera();
+    
+        // 拍照邏輯
+        snapBtn.addEventListener('click', () => {
             const context = canvas.getContext('2d');
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
-            
-            // 畫圖
             context.drawImage(video, 0, 0, canvas.width, canvas.height);
             
-            // 轉成圖片顯示
-            const dataUrl = canvas.toDataURL('image/png');
-            resultImg.src = dataUrl;
-            resultImg.style.display = 'block';
-            hint.style.display = 'block';
+            const photoURL = canvas.toDataURL('image/png');
+            const downloadlink = document.createElement('a');
+            downloadlink.href = photoURL;
+            downloadlink.download = 'my-photo.png';
+            downloadlink.click();
             
-            // 拍完後自動滾動到照片那
-            resultImg.scrollIntoView({ behavior: 'smooth' });
+            console.log("拍照成功");
         });
-
-        // 執行啟動
-        initCamera();
     </script>
+        
         
 </body>
 </html>
